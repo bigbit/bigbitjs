@@ -17,22 +17,18 @@ describe ('ByteBit', () => {
 
     it('should caclculate negative exponent for decimal point', () => {
         let byteBit = new ByteBit('1677700.217');
-        /* console.log( byteBit.toByteArray() );
-        console.log( byteBit.exponent );
-        console.log( byteBit.exponentInBytes );
-        console.log( byteBit.headByte ); */
 
-        /* expect( byteBit.exponent ).toEqual(-3);
-        expect( byteBit.exponentInBytes ).toEqual([  128 +3 ]);
-        expect( byteBit.headByte ).toEqual(64 + 4); */
+        // expect( byteBit.exponent ).toEqual(-3);
+        // expect( byteBit.exponentInBytes ).toEqual([  128 +3 ]);
+        // expect( byteBit.headByte ).toEqual(64 + 5);
         expect( byteBit.toDecimalString() ).toEqual('1677700.217');
-        expect( byteBit.toByteArray() ).toEqual([ 64+4, 128+3, 121,172,255,99]);
+        expect( byteBit.toByteArray() ).toEqual([ 64+5, 128+3, 121,172,255,99]);
     });
     
     it('should ignore trailing zeros for decimal point', () => {
         let byteBit = new ByteBit('1677700.21700000');
         expect( byteBit.toDecimalString() ).toEqual('1677700.217');
-        expect( byteBit.toByteArray() ).toEqual([ 64+4, 128+3, 121,172,255,99]);
+        expect( byteBit.toByteArray() ).toEqual([ 64+5, 128+3, 121,172,255,99]);
         
         byteBit = new ByteBit('1677700217.00000');
         expect( byteBit.toDecimalString() ).toEqual('1677700217');
@@ -62,10 +58,10 @@ describe ('ByteBit', () => {
     it('should calculate exponent when \'forceExponent\' is not set or \'true\' ', () => {
         const byteBit = new ByteBit('70000');
         expect( byteBit.toDecimalString() ).toEqual('70000');
-        expect( byteBit.toByteArray() ).toEqual([64 + 1, 4, 7]);
+        expect( byteBit.toByteArray() ).toEqual([64 + 2, 4, 7]);
         expect( byteBit.exponent ).toEqual( 4 );
         expect( byteBit.exponentInBytes ).toEqual( 4 );
-        expect( byteBit.headByte ).toEqual( 64+1);
+        expect( byteBit.headByte ).toEqual( 64+2);
     });
 
     it('should not calculate exponent when value is smaller than 65535 ', () => {
@@ -80,10 +76,10 @@ describe ('ByteBit', () => {
     it('should calculate exponent for trialing zeros but should ignore zeros after decimal point', () => {
         let byteBit = new ByteBit('167770021700.00');
         expect( byteBit.toDecimalString() ).toEqual('167770021700');
-        expect( byteBit.toByteArray() ).toEqual([64+4, 2, 121,172,255,99]);
+        expect( byteBit.toByteArray() ).toEqual([64+5, 2, 121,172,255,99]);
         expect( byteBit.exponent ).toEqual( 2 );
         expect( byteBit.exponentInBytes ).toEqual( 2 );
-        expect( byteBit.headByte ).toEqual(64 + 4);
+        expect( byteBit.headByte ).toEqual(64 + 5);
 
         byteBit = new ByteBit('100.00');
         expect( byteBit.toDecimalString() ).toEqual('100');
@@ -91,21 +87,29 @@ describe ('ByteBit', () => {
     });
 
 
-    it('temp to test', () => {
-        console.log( "-------- Test data" );
-        let byteBit = new ByteBit('22659849036');
-        expect( byteBit.toDecimalString() ).toEqual('22659849036');
-        console.log( byteBit.toByteArray() );
-        console.log( byteBit.headByte );
-        console.log( byteBit.exponent );
-        console.log( "-------- End: Test data" );
-    });
-
     it('should accept negative numbers', () => {
         const byteBit = new ByteBit('-37');
-        expect( byteBit.toDecimalString() ).toEqual('37');
-        expect( byteBit.toByteArray() ).toEqual( [37]);
+        expect( byteBit.toDecimalString() ).toEqual('-37');
+        expect( byteBit.toByteArray() ).toEqual( [128+1, 37]);
         expect( byteBit.headByte ).toEqual( 129 );
-    }); */
+    });
+
+    it('should accept negative decimal numbers', () => {
+        const byteBit = new ByteBit('-3.7000');
+        expect( byteBit.toDecimalString() ).toEqual('-3.7');
+        expect( byteBit.toByteArray() ).toEqual( [128+64+2, 128+1, 37]);
+        expect( byteBit.exponent ).toEqual( -1 );
+        expect( byteBit.exponentInBytes ).toEqual( 128+1 );
+        expect( byteBit.headByte ).toEqual( 128+64+2 );
+    });
+
+    it('should throw error when all the bytes are not present', () => {
+        //const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
+        expect( () =>{
+            ByteBit.toBigNumber( [128+64+2, 128+1] );
+        }).toThrowError('Invalid HB Bytes sequence. All coffecient bytes are not present.');
+    });
+
+    //TODO: coefficient length should count bytes for exponent.
 
 });

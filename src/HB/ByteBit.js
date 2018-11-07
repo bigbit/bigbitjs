@@ -160,7 +160,11 @@ function ByteBit( decimal , options){
         let quotient = this.decimalValue.minus(remainder).dividedBy( base );
 
         this._levelUp(0, quotient, remainder );
-        this.headByte = this.headByte | this.coffecient.length;
+        if(this.exponent){
+            this.headByte = this.headByte | (this.coffecient.length + 1);
+        }else{
+            this.headByte = this.headByte | this.coffecient.length;
+        }
     }
     this._decimalToByteBit();
 
@@ -212,6 +216,10 @@ ByteBit.toBigNumber = function( headByteArray , index ){
     //headByteArray || ( headByteArray = this.toByteArray() );
     index || (index = 0);
     let headByte = headByteArray[index];
+
+    let bytesCount = headByte & 63;
+    if( bytesCount && !headByteArray[ index + bytesCount ] ) throw new Error("Invalid HB Bytes sequence. All coffecient bytes are not present.");
+
     //read for special values
     if( headByte === 0){
         return BigNumber(0);
@@ -238,11 +246,12 @@ ByteBit.toBigNumber = function( headByteArray , index ){
             exponentValue = headByteArray[ index+1 ]; 
         }
 
-        headByte = headByte ^ 64;
+        headByte = (headByte ^ 64 ) - 1;
+
     }
 
     //const coffecientsArrLength = headByte;
-    if( !headByteArray[ index + (headByte -1) ] ) throw new Error("Invalid HB Bytes array. All coffecient bytes are not present.");
+    
 
     var coffecientIndex = exponentValue !== 0 ? index + 2 : index + 1;
 
