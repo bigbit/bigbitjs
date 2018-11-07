@@ -128,22 +128,11 @@ function ByteBit( decimal , options){
     }
 
     if( this.decimalValue.isNegative() ){
-        this.headByte = 128;
+        this.headByte = this.headByte | 128;
         this.decimalValue = this.decimalValue.abs();
     }
     
     this.coffecient = [];
-
-    /* this.up = function(){
-        for(let i=0; i< this.coffecient.length; i++){
-            var result = this.coffecient[i].up();
-            if(result){//added
-                break;
-            }else if( i + 1 < this.coffecient.length ){
-                this.coffecient.push( new CycleCounter(1, base, min) )
-            }
-        }
-    } */
 
     /**
      * fill the current byte with quotient. level up (add another byte) for remainder
