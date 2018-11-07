@@ -1,0 +1,34 @@
+{
+  "name": "bigbit",
+  "version": "1.0.0",
+  "description": "Implementation of BigBit standard",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine tests/*test.js",
+    "coverage": "nyc jasmine tests/*test.js; nyc report --reporter=lcov"
+  },
+  "keywords": [
+    "bigbig",
+    "bytebit",
+    "head byte",
+    "extended head byte",
+    "linked bytes",
+    "number",
+    "big"
+  ],
+  "author": "Amit Gupta (http://amitkumargupta.work)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/node-muneem/muneem.git"
+  },
+  "devDependencies": {
+    "big.js": "^5.1.2",
+    "ieee754": "^1.1.12",
+    "jasmine": "^3.2.0"
+  },
+  "dependencies": {
+    "bignumber.js": "^7.2.1",
+    "nyc": "^13.1.0"
+  }
+}
