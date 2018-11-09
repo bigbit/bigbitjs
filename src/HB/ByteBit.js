@@ -156,7 +156,7 @@ function ByteBit( decimal , options){
         }
     }
 
-    this._decimalToByteBit = function(){
+    this._decimalToByteSequence = function(){
 
         let remainder = this.decimalValue.modulo( base ).toNumber();
         let quotient = this.decimalValue.minus(remainder).dividedBy( base );
@@ -169,22 +169,18 @@ function ByteBit( decimal , options){
             this.headByte = this.headByte | this.coffecient.length;
         }
     }
-    this._decimalToByteBit();
+    this._decimalToByteSequence();
 
     /**
      * Returns Byte array of header byte, exponent byte, and coffecients only
      */
     this.toByteArray = function(){
-        let bArr;
+        let bArr = [ this.headByte ];
         if( this.exponentInBytes ){
-            bArr = [ this.headByte, this.exponentInBytes ];
-        }else{
-            bArr = [ this.headByte ];
+            bArr.push(this.exponentInBytes );
         }
         //const bArr = [ ];
-        for(let i=0; i< this.coffecient.length; i++){
-            bArr.push( this.coffecient[i] );
-        }
+        bArr.push( ... this.coffecient );
         return bArr;
     }
 
@@ -229,7 +225,7 @@ ByteBit.toBigNumber = function( headByteArray , index ){
     
     let exponentValue = 0;
     if( (headByte & 64) === 64){//exponent byte is present
-        if( !headByteArray[ index+1 ] ) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
+        if( headByteArray[ index+1 ] === undefined) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
         if(headByteArray[ index+1 ] & 128 === 128){//negative
             exponentValue = -(headByteArray[ index+1 ] ^ 128); 
         }else{//positive

@@ -1,18 +1,17 @@
 const LBSequence = require("../LB/LBSequencePremitive");
 const contants = {
-    ZERO: 0,
-    NEGATIVE_ZERO: 1,
-    NAN: 128,
-    INFINITY: 64,
-    NEGATIVE_INFINITY: 192,
-    OTHER1: 32,
-    OTHER2: 160,
-    OTHER3: 224,
-    OTHER4: 96,
-    OTHER5: 176,
+    ZERO: 0,                          //0000 0000
+    //NEGATIVE_ZERO: 1,
+    NAN: 128,                        //1000 0000
+    INFINITY: 64,                    //0100 0000
+    NEGATIVE_INFINITY: 192, //0110 0000
+    OTHER1: 32,      //0010 0000
+    OTHER2: 160,    //1010 0000
+    OTHER3: 224,    //1110 0000
+    OTHER4: 48,      //0011 0000
+    OTHER5: 176,    //1011 0000
 }
 const BigNumber = require("bignumber.js");
-const { exponentToBytes , bytesToExponent} = require("./exponentHandler");
 
 const base = 256;
 //calculate values in advance to speed up runtime calculations

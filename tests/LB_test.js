@@ -30,6 +30,11 @@ describe ('Linked Byte Format', () => {
         expect( () => {
             LBSequence.encode('12.3')
         }).toThrowError("LB format doesn't support fractional number");
+
+        expect( () => {
+            LBSequence.encode(12.3)
+        }).toThrowError("LB format doesn't support fractional number");
+
     });
 
     it('should not accept null', () => {
