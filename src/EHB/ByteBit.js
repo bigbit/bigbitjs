@@ -1,0 +1,316 @@
+const LBSequence = require("../LB/LBSequencePremitive");
+const contants = {
+    ZERO: 0,
+    NEGATIVE_ZERO: 1,
+    NAN: 128,
+    INFINITY: 64,
+    NEGATIVE_INFINITY: 192,
+    OTHER1: 32,
+    OTHER2: 160,
+    OTHER3: 224,
+    OTHER4: 96,
+    OTHER5: 176,
+}
+const BigNumber = require("bignumber.js");
+const { exponentToBytes , bytesToExponent} = require("./exponentHandler");
+
+const base = 256;
+//calculate values in advance to speed up runtime calculations
+const powerOf256 = [ //exponentTableOf256
+    BigNumber(256).pow(0),
+    BigNumber(256).pow(1),
+    BigNumber(256).pow(2),
+    BigNumber(256).pow(3),
+    BigNumber(256).pow(4),
+    BigNumber(256).pow(5),
+    BigNumber(256).pow(6),
+    BigNumber(256).pow(7),
+    BigNumber(256).pow(8),
+    BigNumber(256).pow(9),
+    BigNumber(256).pow(10),
+    BigNumber(256).pow(11),
+    BigNumber(256).pow(12),
+    BigNumber(256).pow(13),
+    BigNumber(256).pow(14),
+    BigNumber(256).pow(15),
+    BigNumber(256).pow(16),
+    BigNumber(256).pow(17),
+    BigNumber(256).pow(18),
+    BigNumber(256).pow(19),
+    BigNumber(256).pow(20),
+]
+const zerosRegExp = /(0+)$/;
+
+const defaultOptions = {
+    decimalSeparator: ".",
+    errorOnNaN: false,
+    infinityIdentifier: "infinity", // "- infinity", "-infinity",
+    arrOnly: true,
+    forceExponent: true, //It'll remove trailing zeros
+}
+
+function ByteBit( decimal , options){
+    const opts = Object.assign({}, defaultOptions, options);
+
+    //Check for special values
+    if( typeof decimal === "string"){
+        decimal = decimal.toLowerCase().replace(/ /g,"");
+        let val;
+        if( decimal === opts.infinityIdentifier ){
+            val = contants.INFINITY;
+        }else if( decimal === ("-"+ opts.infinityIdentifier) ){
+            val = contants.NEGATIVE_INFINITY;
+        }
+
+        if( val ){
+            if( opts.arrOnly){
+                return [ val ];
+            }else{
+                return val;
+            }
+        }
+    }else if( decimal == 0) {
+        if( opts.arrOnly){
+            return [ 0 ];
+        }else{
+            return 0;
+        }
+    }
+    
+    BigNumber.config({
+        FORMAT : {
+            decimalSeparator : opts.decimalSeparator
+        }
+    });
+
+    let min = 0;
+    this.decimalValue = BigNumber(decimal);
+
+    if(this.decimalValue.isNaN() ){
+        if(opts.errorOnNaN){
+            throw new Error("Invalid number:"+ decimal);
+        }else if( opts.arrOnly){
+            return [ 128 ];
+        }else{
+            return 128;
+        }
+    }
+
+    this.headByte = 0;
+    
+    if(typeof decimal === 'number'){
+        decimal = '' + decimal;
+    }
+    
+    this.exponent = 0;
+
+    //remove decimal point
+    var decimalPointPosition = decimal.indexOf( opts.decimalSeparator );
+    if( decimalPointPosition !== -1 ){
+        
+        //there is no point of having trailing zero in decimal values
+        //so remove them
+        decimal = decimal.replace(/0+$/, ""); //remove trailing zeros
+        this.exponent = decimal.length - decimalPointPosition - 1 ;
+        if( this.exponent ) { // ignore the number like 123.00
+            this.exponent = -this.exponent;
+        }
+        
+        decimal = decimal.replace(opts.decimalSeparator, "");
+    }
+
+    //remove trailing zeros
+    //exponent value take an extra byte. So don't create it until the number is smaller than 65535
+    if( opts.forceExponent && this.decimalValue.isGreaterThan(65535) ){
+        var zeros = zerosRegExp.exec(decimal);
+        if( zeros ){
+            this.exponent += zeros[1].length;
+            decimal = decimal.replace(/0+$/, ""); //remove trailing zeros
+        }
+    }
+
+    this.decimalValue = BigNumber(decimal);
+
+    //update head byte as per exponent
+    this.exponentInBytes = [];
+    if( this.exponent ) {
+        this.headByte = this.headByte | 64;
+        if( this.exponent > 0) {
+            this.exponentInBytes = LBSequence.encode(this.exponent, opts);
+        }else{
+            this.headByte = this.headByte | 32;
+            this.exponentInBytes = LBSequence.encode( -this.exponent, opts);
+        }
+    }
+
+    if( this.decimalValue.isNegative() ){
+        this.headByte = this.headByte | 128;
+        this.decimalValue = this.decimalValue.abs();
+    }
+    
+    this.coffecient = [];
+
+    /**
+     * Construct cofficient bytes
+     * fill the current byte with quotient. level up (add another byte) for remainder
+     * keep doing it until the remainder is lesser than base
+     */
+    this._levelUp = function(level, quotient, remainder){
+        this.coffecient[level] = increase(this.coffecient[level] | 0).by(remainder);
+        if( quotient.isGreaterThan(base - 1) ){//still divisible
+            remainder = quotient.modulo( base ).toNumber();
+            
+            this._levelUp(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
+        }else if(quotient.isEqualTo(0)) {
+            //don't add extra empty byte
+        }else{
+            if( !this.coffecient[ level +1 ] ) this.coffecient.push( 0 );
+
+            this.coffecient[ level + 1 ] = increase(this.coffecient[ level + 1 ]).by( quotient.toNumber() );
+        }
+    }
+
+    this._decimalToByteSequence = function(){
+
+        let remainder = this.decimalValue.modulo( base ).toNumber();
+        let quotient = this.decimalValue.minus(remainder).dividedBy( base );
+
+        this.coffecient = [ 0 ];
+        this._levelUp(0, quotient, remainder );
+
+        //half of the head byte contain cofficent & exponent bytes count if it is smaller than 16
+        const count = this.exponentInBytes.length + this.coffecient.length;
+
+        if(count < 16){
+            this.headByte = this.headByte | count;
+        }else{
+            this.headByte = this.headByte | 16;
+            this.totalCountBytes = LBSequence.encode( count );
+        }
+        
+    }
+    this._decimalToByteSequence();
+
+   
+    /**
+     * Returns Byte array of header byte, exponent byte, and coffecients only
+     */
+    this.toByteArray = function(){
+        let bArr = [ this.headByte ];
+        if( this.totalCountBytes ){
+            bArr.push( ...this.totalCountBytes);
+        }
+        if( this.exponentInBytes ){
+            bArr.push( ...this.exponentInBytes);
+        }
+        bArr.push( ... this.coffecient );
+        return bArr;
+    }
+
+    this.toDecimalString = function(){
+        return ByteBit.toBigNumber( this.toByteArray() ).toString();
+    }
+
+}
+
+/**
+ * Convert HB bytes array to BigNumber.
+ * HB bytes array can be read from buffer when buffer/bytes array and index is given
+ * or when passed as method param
+ * otherwise construct it with instance value
+ */
+ByteBit.toBigNumber = function( byteSequence , index ){
+    //headByteArray || ( headByteArray = this.toByteArray() );
+    index || (index = 0);
+    let headByte = byteSequence[index];
+    //read for special values
+    if( headByte === contants.ZERO){
+        return BigNumber(0);
+    }else if( headByte === contants.NAN){
+        return NaN;
+    }else if( headByte === contants.INFINITY){
+        return opts.infinityIdentifier;
+    }else if( headByte === contants.NEGATIVE_INFINITY){
+        return "-"+opts.infinityIdentifier;
+    }
+
+    const code = headByte & 15;
+    let count = 0;
+    if( headByte & 16){
+        //these special code can define the nature of stored number
+        count = LBSequence.decode(byteSequence, index + 1);
+        index += count.len;
+        count = count.val;
+    }else{
+        count = code;
+        //index++;
+    }
+
+    if( byteSequence[ index+ count ] === undefined ) throw new Error("Invalid EHB bytes sequence.");
+
+    let isNegative = false;
+    if( headByte & 128) {//negative
+        isNegative = true;
+        headByte = headByte ^ 128;
+    }
+    
+    let exponent = {};
+    if( (headByte & 64) === 64){//exponent byte is present
+        exponent = LBSequence.decode(byteSequence, index +1 );
+        count -= exponent.len;
+        headByte = headByte ^ 64;
+        if(headByte & 32){
+            exponent.val = -exponent.val;
+            headByte = headByte ^ 32;
+        } 
+    }
+
+    //const coffecientsArrLength = headByte;
+    if( !byteSequence[ index + (headByte -1) ] ) throw new Error("Invalid HB Bytes array. All coffecient bytes are not present.");
+
+    var coffecientIndex = (exponent.len ? index + exponent.len : index) + 1;
+
+    let decimalValue = BigNumber( byteSequence[  coffecientIndex ] );
+    for(let i=1; i< count; i++){
+        if( i< powerOf256.length ){ //to save runtime operations
+            decimalValue = decimalValue.plus(   powerOf256[i].multipliedBy( byteSequence[ coffecientIndex+ i] ) )
+        }else{
+            decimalValue = decimalValue.plus(   BigNumber(base).pow(i).multipliedBy( byteSequence[ coffecientIndex+ i] ) )
+        }
+    }
+
+    if( exponent.val ){
+        decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponent.val ) )
+    }
+
+    if( isNegative ){
+        decimalValue = decimalValue.multipliedBy( -1 );
+    }
+
+    return decimalValue;
+}
+
+const increase = function(x){
+    if(x > base || x < 0 ){
+        throw Error("Number should not be out of the range");
+    }
+    return {
+        by : function(y){
+            if(x + y <= base){
+                return x + y;
+            }else{
+                return x + y - base;
+            }
+        }
+    }
+}
+
+//TODO: 
+ByteBit.prototype.from = function(byteArr, from){
+    return {
+        updatedIndex : from,
+        byteArray : byteArr
+    }
+}
+
+module.exports = ByteBit;
