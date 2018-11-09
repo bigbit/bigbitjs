@@ -20,15 +20,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/node-muneem/muneem.git"
+    "url": "https://github.com/nimndata/BigBit"
   },
   "devDependencies": {
     "big.js": "^5.1.2",
     "ieee754": "^1.1.12",
-    "jasmine": "^3.2.0"
+    "jasmine": "^3.2.0",
+    "nyc": "^13.1.0"
   },
   "dependencies": {
-    "bignumber.js": "^7.2.1",
-    "nyc": "^13.1.0"
+    "bignumber.js": "^7.2.1"
   }
 }
