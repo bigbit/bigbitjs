@@ -1,4 +1,3 @@
-const CycleCounter = require("../common/CyclicCounter");
 const BigNumber = require("bignumber.js");
 
 const base = 256;
@@ -119,6 +118,8 @@ function ByteBit( decimal , options){
 
     //update head byte as per exponent
     if( this.exponent ) {
+        if(Math.abs(this.exponent) > 127) throw new Error("Maximum value of exponent is exceeded.");
+        
         this.headByte = this.headByte | 64;
         if( this.exponent > 0) {
             this.exponentInBytes = this.exponent;
@@ -135,13 +136,13 @@ function ByteBit( decimal , options){
     this.coffecient = [];
 
     /**
+     * Construct cofficient bytes
      * fill the current byte with quotient. level up (add another byte) for remainder
      * keep doing it until the remainder is lesser than base
      */
     this._levelUp = function(level, quotient, remainder){
-        if( !this.coffecient[level] ) this.coffecient.push( new CycleCounter(0, base, min) );
 
-        this.coffecient[level].add(remainder);
+        this.coffecient[level] = increase(this.coffecient[level] | 0).by(remainder);
         if( quotient.isGreaterThan(base - 1) ){//still divisible
             remainder = quotient.modulo( base ).toNumber();
             
@@ -149,8 +150,9 @@ function ByteBit( decimal , options){
         }else if(quotient.isEqualTo(0)) {
             //don't add extra empty byte
         }else{
-            if( !this.coffecient[ level +1 ] ) this.coffecient.push( new CycleCounter(0, base, min) );
-            this.coffecient[ level + 1 ].add( quotient.toNumber() );
+            if( !this.coffecient[ level +1 ] ) this.coffecient.push( 0 );
+
+            this.coffecient[ level + 1 ] = increase(this.coffecient[ level + 1 ]).by( quotient.toNumber() );
         }
     }
 
@@ -159,6 +161,7 @@ function ByteBit( decimal , options){
         let remainder = this.decimalValue.modulo( base ).toNumber();
         let quotient = this.decimalValue.minus(remainder).dividedBy( base );
 
+        this.coffecient = [ 0 ];
         this._levelUp(0, quotient, remainder );
         if(this.exponent){
             this.headByte = this.headByte | (this.coffecient.length + 1);
@@ -167,19 +170,6 @@ function ByteBit( decimal , options){
         }
     }
     this._decimalToByteBit();
-
-    /**
-     * Returns Byte array of coffecients only
-     * @returns Byte Array
-     */
-    this.toCoffecientsArray = function(){
-        //const bArr = [ this.headByte, ...this.exponentInBytes ];
-        const bArr = [ ];
-        for(let i=0; i< this.coffecient.length; i++){
-            bArr.push( this.coffecient[i].value );
-        }
-        return bArr;
-    }
 
     /**
      * Returns Byte array of header byte, exponent byte, and coffecients only
@@ -193,7 +183,7 @@ function ByteBit( decimal , options){
         }
         //const bArr = [ ];
         for(let i=0; i< this.coffecient.length; i++){
-            bArr.push( this.coffecient[i].value );
+            bArr.push( this.coffecient[i] );
         }
         return bArr;
     }
@@ -274,6 +264,24 @@ ByteBit.toBigNumber = function( headByteArray , index ){
 
     return decimalValue;
 }
+
+
+
+const increase = function(x){
+    if(x > base || x < 0 ){
+        throw Error("Number should not be out of the range");
+    }
+    return {
+        by : function(y){
+            if(x + y <= base){
+                return x + y;
+            }else{
+                return x + y - base;
+            }
+        }
+    }
+}
+
 
 //TODO: 
 ByteBit.prototype.from = function(byteArr, from){

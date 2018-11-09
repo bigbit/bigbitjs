@@ -5,7 +5,7 @@ describe ('ByteBit', () => {
     it('should accept very large number', () => {
         const byteBit = new ByteBit('131337515616165120231511215188');
         //console.log( byteBit.toByteArray() ); // [ 13, 84, 204, 244, 21, 79, 57, 168, 254, 187, 216, 95, 168, 1 ]
-        //console.log( byteBit.toCoffecientsArray() ); // [ 84, 204, 244, 21, 79, 57, 168, 254, 187, 216, 95, 168, 1 ]
+        //console.log( byteBit.coffecient ); // [ 84, 204, 244, 21, 79, 57, 168, 254, 187, 216, 95, 168, 1 ]
         expect( byteBit.toDecimalString() ).toEqual('1.31337515616165120231511215188e+29');
     });
 
