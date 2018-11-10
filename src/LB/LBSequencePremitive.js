@@ -113,6 +113,27 @@ const LBSequence = {
     }
 }
 
+LBSequence.strToByteArr = function(str){
+    const byteArr = [];
+    for(let i=0; i< str.length; i++){
+        let code = str.charCodeAt(i);
+        byteArr.push(...LBSequence.encode(code));
+    }
+    return byteArr;
+}
+
+LBSequence.byteArrToStr = function(byteArr, start, end){
+    start || (start = 0);
+    end || (end  = byteArr.length);
+    let str = '';
+    while(start< end){
+        let code = LBSequence.decode( byteArr, start );
+        str += String.fromCharCode( code.val );
+        start += code.len;
+    }
+    return str;
+}
+
 const increase = function(x){
     if(x > base || x < 0 ){
         throw Error("Number should not be out of the range");

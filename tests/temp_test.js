@@ -1,6 +1,7 @@
 const HB = require("../src/HB/ByteBit");
 const EHB = require("../src/EHB/ByteBit");
 const LB = require("../src/LB/LBSequence");
+const LBPremitive = require("../src/LB/LBSequencePremitive");
 
 describe ('ByteBit', () => {
     const num = '-22659.849036';
@@ -24,8 +25,11 @@ describe ('ByteBit', () => {
         console.log( "Exponent byte:",ehb.exponentInBytes );
         console.log( "-------- End: EHB" );
 
-        /* console.log( "-------- LB" );
-        console.log( LB.encode(num) );
-        console.log( "-------- End: LB" ); */
+        console.log( "-------- LB" );
+        console.log( LB.encode(115) );
+        console.log( LBPremitive.strToByteArr('sजg') );// [ 115, 156, 18, 103 ]
+        console.log( LBPremitive.byteArrToStr([ 115, 156, 18, 103 ]) );// 'sजg'
+
+        console.log( "-------- End: LB" );
     });
 });
