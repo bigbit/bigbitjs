@@ -1,3 +1,5 @@
+
+const increase = require("../common/CyclicCounter");
 const BigNumber = require("bignumber.js");
 const powerOf128 = [ //exponentTableOf128
     BigNumber(128).pow(0),
@@ -58,7 +60,7 @@ const LBSequence = {
     
         function _buildSequence(level, quotient, remainder){
             if( quotient.isGreaterThan(base - 1) ){//still divisible
-                sequence[level] = increase(sequence[level]).by(remainder) | 128;
+                sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
                 remainder = quotient.modulo( base ).toNumber();
                 
                 _buildSequence(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
@@ -66,11 +68,11 @@ const LBSequence = {
 
                 //don't add extra empty byte
             }else{
-                sequence[level] = increase(sequence[level] | 0).by(remainder) | 128;
+                sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
                 if( !sequence[ level +1 ] ) {
                     sequence.push( 0 );
                 }
-                sequence[ level + 1 ] = increase(sequence[ level + 1 ]).by( quotient.toNumber() );
+                sequence[ level + 1 ] = increase(sequence[ level + 1 ] | 0, base).by( quotient.toNumber() );
             }
         }
 
@@ -116,18 +118,32 @@ const LBSequence = {
     }
 }
 
-const increase = function(x){
-    if(x > base || x < 0 ){
-        throw Error("Number should not be out of the range");
+LBSequence.strToByteArr = function(str){
+    const byteArr = [];
+    for(let i=0; i< str.length; i++){
+        let code = str.charCodeAt(i);
+        byteArr.push(...LBSequence.encode(code));
     }
-    return {
-        by : function(y){
-            if(x + y <= base){
-                return x + y;
-            }else{
-                return x + y - base;
-            }
-        }
+    return byteArr;
+}
+
+LBSequence.byteArrToStr = function(byteArr, start, end){
+    start || (start = 0);
+    end || (end  = byteArr.length);
+    let str = '';
+    while(start< end){
+        let code = LBSequence.decode( byteArr, start );
+        str += String.fromCharCode( code.val );
+        start += code.len;
+    }
+    return str;
+}
+
+LBSequence.convert = function(){
+    if( typeof arguments[0] === 'string'){
+        return LBSequence.strToByteArr(arguments[0]);
+    }else{
+        return LBSequence.byteArrToStr( ...arguments);
     }
 }
 

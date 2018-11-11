@@ -3,6 +3,11 @@ const ByteBit = require("../src/HB/ByteBit");
 describe ('ByteBit', () => {
 
     it('should accept very large number', () => {
+        const byteBit = new ByteBit('9007199254740992');
+        expect( byteBit.toDecimalString() ).toEqual('9007199254740992');
+    });
+    
+    it('should accept very large number', () => {
         const byteBit = new ByteBit('131337515616165120231511215188');
         //console.log( byteBit.toByteArray() ); // [ 13, 84, 204, 244, 21, 79, 57, 168, 254, 187, 216, 95, 168, 1 ]
         //console.log( byteBit.coffecient ); // [ 84, 204, 244, 21, 79, 57, 168, 254, 187, 216, 95, 168, 1 ]
@@ -109,7 +114,5 @@ describe ('ByteBit', () => {
             ByteBit.toBigNumber( [128+64+2, 128+1] );
         }).toThrowError('Invalid HB Bytes sequence. All coffecient bytes are not present.');
     });
-
-    //TODO: coefficient length should count bytes for exponent.
 
 });

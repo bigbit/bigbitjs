@@ -3,6 +3,12 @@ const LBSequence = require("../src/LB/LBSequence");
 describe ('Linked Byte Format', () => {
 
     it('should accept a number', () => {
+        expect( LBSequence.encode('9007199254740991')  ).toEqual( [ 255, 255, 255, 255 ,255, 255, 255, 15]);
+        expect( LBSequence.decode([ 255, 255, 255, 255 ,255, 255, 255, 15])  ).toEqual({ val: '9007199254740991', len: 8});
+        
+    });
+
+   it('should accept a number', () => {
         expect( LBSequence.encode('123000')  ).toEqual( [ 248, 192, 7]);
         expect( LBSequence.decode([ 248, 192, 7])  ).toEqual({ val: '123000', len: 3});
 

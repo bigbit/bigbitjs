@@ -1,3 +1,4 @@
+const increase = require("../common/CyclicCounter");
 const LBSequence = require("../LB/LBSequencePremitive");
 const contants = {
     ZERO: 0,                          //0000 0000
@@ -155,7 +156,7 @@ function ByteBit( decimal , options){
      * keep doing it until the remainder is lesser than base
      */
     this._levelUp = function(level, quotient, remainder){
-        this.coffecient[level] = increase(this.coffecient[level] | 0).by(remainder);
+        this.coffecient[level] = increase(this.coffecient[level] | 0, base).by(remainder);
         if( quotient.isGreaterThan(base - 1) ){//still divisible
             remainder = quotient.modulo( base ).toNumber();
             
@@ -165,7 +166,7 @@ function ByteBit( decimal , options){
         }else{
             if( !this.coffecient[ level +1 ] ) this.coffecient.push( 0 );
 
-            this.coffecient[ level + 1 ] = increase(this.coffecient[ level + 1 ]).by( quotient.toNumber() );
+            this.coffecient[ level + 1 ] = increase(this.coffecient[ level + 1 ], base).by( quotient.toNumber() );
         }
     }
 
@@ -287,21 +288,6 @@ ByteBit.toBigNumber = function( byteSequence , index ){
     }
 
     return decimalValue;
-}
-
-const increase = function(x){
-    if(x > base || x < 0 ){
-        throw Error("Number should not be out of the range");
-    }
-    return {
-        by : function(y){
-            if(x + y <= base){
-                return x + y;
-            }else{
-                return x + y - base;
-            }
-        }
-    }
 }
 
 //TODO: 

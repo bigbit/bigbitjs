@@ -1,3 +1,4 @@
+const increase = require("../common/CyclicCounter");
 const powerOf128 = [ //exponentTableOf128
     Math.pow(128, 0),
     Math.pow(128, 1),
@@ -55,7 +56,7 @@ const LBSequence = {
     
         function _buildSequence(level, quotient, remainder){
             if( quotient> base - 1 ){//still divisible
-                sequence[level] = increase(sequence[level]).by(remainder) | 128;
+                sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
                 remainder = quotient % base;
                 
                 _buildSequence(level + 1, (quotient - remainder) / base , remainder);
@@ -63,11 +64,11 @@ const LBSequence = {
 
                 //don't add extra empty byte
             }else{
-                sequence[level] = increase(sequence[level] | 0).by(remainder) | 128;
+                sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
                 if( !sequence[ level +1 ] ) {
                     sequence.push( 0 );
                 }
-                sequence[ level + 1 ] = increase(sequence[ level + 1 ]).by( quotient );
+                sequence[ level + 1 ] = increase(sequence[ level + 1 ] | 0, base).by( quotient );
             }
         }
 
@@ -134,20 +135,12 @@ LBSequence.byteArrToStr = function(byteArr, start, end){
     return str;
 }
 
-const increase = function(x){
-    if(x > base || x < 0 ){
-        throw Error("Number should not be out of the range");
-    }
-    return {
-        by : function(y){
-            if(x + y <= base){
-                return x + y;
-            }else{
-                return x + y - base;
-            }
-        }
+LBSequence.convert = function(){
+    if( typeof arguments[0] === 'string'){
+        return LBSequence.strToByteArr(arguments[0]);
+    }else{
+        return LBSequence.byteArrToStr( ...arguments);
     }
 }
-
 
 module.exports = LBSequence;
