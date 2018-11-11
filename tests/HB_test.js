@@ -20,6 +20,13 @@ describe ('ByteBit', () => {
         expect( byteBit.toByteArray() ).toEqual( [1, 37]);
     });
 
+    it('should calculate positive exponent', () => {
+        const byteBit = new ByteBit('9007199254740990');
+        //console.log( byteBit.toByteArray() ); // 
+        //console.log( byteBit.coffecient ); // 
+        expect( byteBit.toDecimalString() ).toEqual('9007199254740990');
+    });
+
     it('should caclculate negative exponent for decimal point', () => {
         let byteBit = new ByteBit('1677700.217');
 

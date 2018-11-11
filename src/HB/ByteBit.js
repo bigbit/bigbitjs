@@ -226,8 +226,8 @@ ByteBit.toBigNumber = function( headByteArray , index ){
     
     let exponentValue = 0;
     if( (headByte & 64) === 64){//exponent byte is present
-        if( headByteArray[ index+1 ] === undefined) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
-        if(headByteArray[ index+1 ] & 128 === 128){//negative
+        //if( headByteArray[ index+1 ] === undefined) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
+        if( (headByteArray[ index+1 ] & 128) === 128){//negative
             exponentValue = -(headByteArray[ index+1 ] ^ 128); 
         }else{//positive
             exponentValue = headByteArray[ index+1 ]; 
