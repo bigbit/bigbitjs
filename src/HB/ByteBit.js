@@ -205,7 +205,7 @@ ByteBit.toBigNumber = function( headByteArray , index ){
     let headByte = headByteArray[index];
 
     let bytesCount = headByte & 63;
-    if( bytesCount && !headByteArray[ index + bytesCount ] ) throw new Error("Invalid HB Bytes sequence. All coffecient bytes are not present.");
+    if( bytesCount && headByteArray[ index + bytesCount ] === undefined ) throw new Error("Invalid HB Bytes sequence. All coffecient bytes are not present.");
 
     //read for special values
     if( headByte === 0){

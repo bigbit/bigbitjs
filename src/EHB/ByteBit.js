@@ -266,7 +266,7 @@ ByteBit.toBigNumber = function( byteSequence , index ){
     }
 
     //const coffecientsArrLength = headByte;
-    if( !byteSequence[ index + (headByte -1) ] ) throw new Error("Invalid HB Bytes array. All coffecient bytes are not present.");
+    if( byteSequence[ index + (headByte -1) ] === undefined) throw new Error("Invalid EHB Bytes array. All coffecient bytes are not present.");
 
     var coffecientIndex = (exponent.len ? index + exponent.len : index) + 1;
 
