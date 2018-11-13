@@ -185,8 +185,12 @@ function ByteBit( decimal , options){
         return bArr;
     }
 
-    this.toDecimalString = function(){
-        return ByteBit.toBigNumber( this.toByteArray() ).toString();
+    this.toExponentString = function(range){
+        return ByteBit.toBigNumber( this.toByteArray() ).toExponential(range);
+    }
+    
+    this.toString = function(){
+        return ByteBit.toBigNumber( this.toByteArray() ).toFixed();
     }
 
     

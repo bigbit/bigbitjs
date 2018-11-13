@@ -112,7 +112,7 @@ const LBSequence = {
         }
 
         return {
-            val: decimalValue.toString(),
+            val: decimalValue.toFixed(),
             len: i + 1
         }
     }
