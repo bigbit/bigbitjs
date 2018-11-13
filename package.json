@@ -1,6 +1,6 @@
 {
   "name": "bigbit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Implementation of BigBit standard",
   "main": "index.js",
   "scripts": {
@@ -15,8 +15,13 @@
     "head byte",
     "extended head byte",
     "linked bytes",
-    "number",
-    "big"
+    "big number",
+    "big",
+    "binary32",
+    "binary64",
+    "utf8",
+    "character encoding",
+    "ieee754"
   ],
   "author": "Amit Gupta (http://amitkumargupta.work)",
   "license": "MIT",
