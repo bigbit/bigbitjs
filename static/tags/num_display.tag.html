@@ -1,0 +1,95 @@
+<num_display>
+    <style>
+        .ttitle{
+            font-size: x-large; font-weight: bold;
+            background: burlywood;
+        }
+        thead tr th{
+            font-weight: bold;
+            color: blue;
+        }
+        thead tr th:first-child,
+        tbody tr td:first-child {
+            width: 16em;
+            min-width: 16em;
+            max-width: 16em;
+            word-break: break-all;
+        }
+        .red{
+            background: red;
+        }
+    </style>
+    <div class="row" if={ opts.display} each={result in data}>
+        <div class="col-md-12" >
+            <p class="ttitle">{ result.title }</p>
+            <table class="table">
+                <thead class="thead">
+                    <tr>
+                        <td style="width: 50px;">Field</td>
+                        <td>Value</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Value stored</td>
+                        <td class={red: (result.actual !== opts.input)}>{result.actual}</td>
+                    </tr>
+                    <tr>
+                        <td>Byte Array ({result.byteArray.length}) </td>
+                        <td>[{result.byteArray}]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+
+        if(this.opts.display){
+            const HB = bigbit.HeaderByte;
+            const EHB = bigbit.ExtendedHeaderByte;
+            const LB = bigbit.LinkedBytes;
+            const num = this.opts.input;
+    
+            let hb = new HB(num);
+            let ehb = new EHB(num);
+            floatNum = ieeeFloat(num);
+            doubleNum = ieeeDouble(num);
+    
+            let LBactual = 0;
+            let LBbyteArray = [];
+            try{
+                LBbyteArray = LB.encode(num);
+                LBactual = LB.decode( LBbyteArray ).val;
+            }catch(e){
+                LBactual = e.message;
+            }
+    
+            this.data = [
+                {
+                    title: "Header Byte Format",
+                    actual: hb.toString(),
+                    byteArray: hb.toByteArray()
+                },{
+                    title: "Extended Header Byte Format",
+                    actual: ehb.toString(),
+                    byteArray: ehb.toByteArray()
+                },{
+                    title: "Linked Bytes Format",
+                    actual: LBactual,
+                    byteArray: LBbyteArray
+                },{
+                    title: "IEEE 754 binary32 / float",
+                    actual: num > 16777216 || num < -16777216 ? "Out of safe range" : ''+ floatNum.actual,
+                    byteArray: floatNum.arr
+                },{
+                    title: "IEEE 754 binary64 / double",
+                    //actual: num.length > 15 ? "Out of safe range" :  doubleNum.actual,
+                    actual: (num > 9007199254740991 || num < -9007199254740991) ? "Out of safe range" :  ''+ doubleNum.actual,
+                    byteArray: doubleNum.arr
+                }
+            ]
+        }
+
+        //console.log( this.data );
+    </script>
+</num_display>
