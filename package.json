@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine tests/*test.js",
-    "coverage": "nyc jasmine tests/*test.js; nyc report --reporter=lcov"
+    "coverage": "nyc jasmine tests/*test.js; nyc report --reporter=lcov",
+    "bundle": "browserify index.js -s bigbit > dist/bigbit.js;",
+    "webbundle": "webpack"
   },
   "keywords": [
     "bigbig",
@@ -23,9 +25,17 @@
     "url": "https://github.com/nimndata/BigBit"
   },
   "devDependencies": {
+    "@babel/core": "~7.0.0-rc.2",
+    "@babel/plugin-transform-runtime": "~7.0.0-rc.2",
+    "@babel/preset-env": "~7.0.0-rc.2",
+    "@babel/register": "~7.0.0-rc.2",
+    "babel-loader": "~8.0.0-beta.6",
+    "webpack": "~4.17.0",
+    "webpack-cli": "^3.1.0",
     "big.js": "^5.1.2",
     "ieee754": "^1.1.12",
     "jasmine": "^3.2.0",
+    "browserify": "^16.2.3",
     "nyc": "^13.1.0"
   },
   "dependencies": {
