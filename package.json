@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nimndata/BigBit"
+    "url": "https://github.com/bigbit/bigbitjs"
   },
   "devDependencies": {
     "@babel/core": "~7.0.0-rc.2",
