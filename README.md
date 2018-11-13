@@ -1,5 +1,5 @@
 # BigBit
-An improved data type to save large numbers in less space without precision loss. check more detail [here](https://github.com/amitguptagwl/bigbit). Or try the [demo](http://nimn.in/BigBit)
+An improved data type to save large numbers in less space without precision loss. check more detail [here](https://github.com/amitguptagwl/bigbit). Or try the [demo](https://bigbit.github.io/bigbitjs/)
 
 ```JavaScript
 var HBSequence = require('bigbit').HeaderByte;
