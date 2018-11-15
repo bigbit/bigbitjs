@@ -63,12 +63,14 @@
             }catch(e){
                 LBactual = e.message;
             }
+
+            var hbByteArray = hb.toByteArray();
     
             this.data = [
                 {
                     title: "Header Byte Format",
-                    actual: hb.toString(),
-                    byteArray: hb.toByteArray()
+                    actual: hbByteArray.length > 64 ? 'Out of range' : hb.toString(),
+                    byteArray: hbByteArray
                 },{
                     title: "Extended Header Byte Format",
                     actual: ehb.toString(),
