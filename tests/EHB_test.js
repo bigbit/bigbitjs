@@ -108,9 +108,9 @@ describe ('ByteBit', () => {
     });
 
     it('should throw error when all the bytes are not present', () => {
-        //const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
+        const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
         expect( () =>{
-            ByteBit.toBigNumber( [128+64+2, 128+1] );
+            this.toBigNumber( [128+64+2, 128+1] );
         }).toThrowError('Invalid EHB bytes sequence.');
     });
 
