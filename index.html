@@ -77,24 +77,33 @@
                     var exampleTag = riot.mount("example", { display: true});
                     
                 }
-                $('#convert').click( function(){
-                    riot.mount({ display: false});
-                    $("#example_section").hide();
-                    //validate input
-                    var inputData = $("#input_text").val();
-                    var type = $("input[name=input_type]:checked").val();
-
-                    var numPage, strPage;
-
-                    if(type === 'num'){
-                        numPage = riot.mount("num_display", { input: inputData, display: true});
-                        $("#str_section").hide();
-                    }else{
-                        strPage = riot.mount("str_display", { input: inputData, display: true});
-                        $("#num_section").hide();
+                $(document).keyup( function(e){
+                    if(e.keyCode === 13){
+                        convert();
                     }
+                });
+                $('#convert').click( function(){
+                    convert();
                 })
             });
+
+            function convert(){
+                riot.mount({ display: false});
+                $("#example_section").hide();
+                //validate input
+                var inputData = $("#input_text").val();
+                var type = $("input[name=input_type]:checked").val();
+
+                var numPage, strPage;
+
+                if(type === 'num'){
+                    numPage = riot.mount("num_display", { input: inputData, display: true});
+                    $("#str_section").hide();
+                }else{
+                    strPage = riot.mount("str_display", { input: inputData, display: true});
+                    $("#num_section").hide();
+                }
+            }
         
         </script>
     </body>
