@@ -32,10 +32,10 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <input type="radio" name="input_type" value="num" checked> Number
+                    <input id="num_choice" type="radio" name="input_type" value="num" checked> Number
                 </div>
                 <div class="col-md-6">
-                    <input type="radio" name="input_type" value="str"> Text
+                    <input id="str_choice" type="radio" name="input_type" value="str"> Text
                 </div>
             </div>
             <!-- 
@@ -62,8 +62,21 @@
         <script type="text/javascript">
             riot.mount("cookie-alert");
             $(document).ready(function(){
-
-                var exampleTag = riot.mount("example", { display: true});
+                var q = new URLSearchParams(window.location.search);
+                if( q.get('text') ){
+                    $('#input_text').val(q.get('text'));
+                    $('#str_choice').prop('checked',true);
+                    strPage = riot.mount("str_display", { input: q.get('text'), display: true});
+                    $("#num_section").hide();
+                }else if( q.get('num') ){
+                    $('#input_text').val(q.get('num'));
+                    $('#num_choice').prop('checked',true);
+                    strPage = riot.mount("num_display", { input: q.get('num'), display: true});
+                    $("#str_section").hide();
+                }else{
+                    var exampleTag = riot.mount("example", { display: true});
+                    
+                }
                 $('#convert').click( function(){
                     riot.mount({ display: false});
                     $("#example_section").hide();
@@ -75,11 +88,9 @@
 
                     if(type === 'num'){
                         numPage = riot.mount("num_display", { input: inputData, display: true});
-                        riot.mount({ display: false});
                         $("#str_section").hide();
                     }else{
                         strPage = riot.mount("str_display", { input: inputData, display: true});
-                        riot.mount({ display: false});
                         $("#num_section").hide();
                     }
                 })
