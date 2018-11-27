@@ -1,5 +1,7 @@
+'use restrict'
 
 const increase = require("../common/CyclicCounter");
+const {getCodePoint} = require("../common/encoding");
 const BigNumber = require("bignumber.js");
 const powerOf128 = [ //exponentTableOf128
     BigNumber(128).pow(0),
@@ -121,7 +123,19 @@ const LBSequence = {
 LBSequence.strToByteArr = function(str){
     const byteArr = [];
     for(let i=0; i< str.length; i++){
-        let code = str.charCodeAt(i);
+        var code = str.charCodeAt(i);
+
+        if (code >= 0xD800 && code <= 0xDBFF && str.length > 1) {
+            var second = str.charCodeAt(++i);
+
+            if (second >= 0xDC00 && second <= 0xDFFF) {
+                code = (code - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+            }
+        }
+
+        /* const code = str.codePointAt(i);
+        if( code > 65535) i++; */
+
         byteArr.push(...LBSequence.encode(code));
     }
     return byteArr;
@@ -133,7 +147,7 @@ LBSequence.byteArrToStr = function(byteArr, start, end){
     let str = '';
     while(start< end){
         let code = LBSequence.decode( byteArr, start );
-        str += String.fromCharCode( code.val );
+        str += String.fromCodePoint( code.val );
         start += code.len;
     }
     return str;
@@ -146,6 +160,5 @@ LBSequence.convert = function(){
         return LBSequence.byteArrToStr( ...arguments);
     }
 }
-
 
 module.exports = LBSequence;

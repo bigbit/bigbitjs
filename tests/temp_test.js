@@ -27,6 +27,12 @@ describe ('ByteBit', () => {
 
         console.log( "-------- LB" );
         console.log( LB.encode(115) );
+        console.log( LB.strToByteArr('sजg') );// [ 115, 156, 18, 103 ]
+        console.log( LB.byteArrToStr([ 115, 156, 18, 103 ]) );// 'sजg'
+
+        console.log( LB.strToByteArr('💩😃') );// [ 115, 156, 18, 103 ]
+        console.log( LB.byteArrToStr([ 169, 233, 7, 131, 236, 7 ]) );
+
         console.log( LBPremitive.strToByteArr('sजg') );// [ 115, 156, 18, 103 ]
         console.log( LBPremitive.byteArrToStr([ 115, 156, 18, 103 ]) );// 'sजg'
 
