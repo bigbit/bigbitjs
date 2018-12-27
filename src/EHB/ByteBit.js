@@ -155,12 +155,12 @@ function ByteBit( decimal , options){
      * fill the current byte with quotient. level up (add another byte) for remainder
      * keep doing it until the remainder is lesser than base
      */
-    this._levelUp = function(level, quotient, remainder){
+    this._levelUpRecursive = function(level, quotient, remainder){
         this.coffecient[level] = increase(this.coffecient[level] | 0, base).by(remainder);
         if( quotient.isGreaterThan(base - 1) ){//still divisible
             remainder = quotient.modulo( base ).toNumber();
             
-            this._levelUp(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
+            this._levelUpRecursive(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
         }else if(quotient.isEqualTo(0)) {
             //don't add extra empty byte
         }else{
@@ -170,13 +170,35 @@ function ByteBit( decimal , options){
         }
     }
 
+    this._levelUpIterative = function(level, quotient, remainder){
+
+        let coffecient = [ 0 ];
+        coffecient[level] = increase(coffecient[level] | 0, base).by(remainder);
+
+        for(level=1 ; quotient.isGreaterThan(base - 1);level++ ){//still divisible
+            remainder = quotient.modulo( base ).toNumber();
+            quotient = quotient.minus(remainder).dividedBy( base );
+            
+            coffecient[level] = increase(coffecient[level] | 0, base).by(remainder);
+        }
+        
+        if(quotient.isEqualTo(0)) {
+            //don't add extra empty byte
+        }else{
+            if( !coffecient[ level ] ) coffecient.push( 0 );
+
+            coffecient[ level ] = increase(coffecient[ level ], base).by( quotient.toNumber() );
+        }
+
+        return coffecient;
+    }
+
     this._decimalToByteSequence = function(){
 
         let remainder = this.decimalValue.modulo( base ).toNumber();
         let quotient = this.decimalValue.minus(remainder).dividedBy( base );
 
-        this.coffecient = [ 0 ];
-        this._levelUp(0, quotient, remainder );
+        this.coffecient = this._levelUpIterative(0, quotient, remainder);
 
         //half of the head byte contain cofficent & exponent bytes count if it is smaller than 16
         const count = this.exponentInBytes.length + this.coffecient.length;
