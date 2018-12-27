@@ -2,28 +2,38 @@
     <style>
     </style>
     <div class="container" if={opts.display} style="padding: 100px 0 50px 0;">
-        <h1>Example data you can try</h1>
+        <h1>Introduction</h1>
+        <p>BigBit standard is an alternate of IEEE 754 standard and UTF encoding.</p>
+        <h1>Benefits</h1>
+        <ul>
+            <li>No precision loss: Now <code>0.3 - 0.1</code> is always <code>0.2</code> not <code>0.19999999999999998</code>. So if you're working on a science or finance project, switch to it immediately.</li>
+            <li>Biggest number: It can represent any number in the universe</li>
+            <li>Take less memory: Unlike binary16, binary32, ..  It doesn't occupy fixed blocks to represent a number. And take lesser memory.</li>
+            <li>Less decision, no confusion: LB encoding covers all UTF formats. And three data types (EB, HB, EHB) covers maximum numeric data types, like: integer, float, double, long, decimal, biginteger etc.</li>
+        </ul>
+        <h1>Try yourself</h1>
+        <p>Click on any link below to see the result. Or directly put a number or string in the above text box.</p>
         <h2>Number</h2>
         <ul>
-            <li><strong>Small</strong>: 128</li>
-            <li><strong>Medium</strong>: 9007199254740992</li>
-            <li><strong>Big</strong>: 78965412365478954125864971415831</li>
-            <li><strong>Very Big</strong>: 7896541236547895412586497141583178965412365478954125864971415831789654123654789541258649714158317896541236547895412586497141583178965412365478954125864971415831</li>
-            <li><strong>Negative</strong>: -78965412365478954125864971415831</li>
-            <li><strong>Fractional</strong>: 7896541236547895.4125864971415831</li>
-            <li><strong>Negative Fractional</strong>: -7896541236547895.4125864971415831</li>
+            <li><strong>Small</strong>: <a href="/?num=128">128</a></li>
+            <li><strong>Medium</strong>: <a href="/?num=9007199254740992">9007199254740992</a></li>
+            <li><strong>Big</strong>: <a href="/?num=78965412365478954125864971415831"> 78965412365478954125864971415831</a></li>
+            <li><strong>Very Big</strong>: <a href="/?num=7896541236547895412586497141583178965412365478954125864971415831789654123654789541258649714158317896541236547895412586497141583178965412365478954125864971415831"> 7896541236547895412586497141583178965412365478954125864971415831789654123654789541258649714158317896541236547895412586497141583178965412365478954125864971415831</a></li>
+            <li><strong>Negative</strong>: <a href="/?num=-78965412365478954125864971415831"> -78965412365478954125864971415831</a></li>
+            <li><strong>Fractional</strong>: <a href="/?num=7896541236547895.4125864971415831"> 7896541236547895.4125864971415831</a></li>
+            <li><strong>Negative Fractional</strong>: <a href="/?num=-7896541236547895.4125864971415831"> -7896541236547895.4125864971415831</a></li>
         </ul>
         <h2>Text</h2>
         <ul>
-            <li>This  text contains Hindi characters: मेरा नााम अमित गुप्ता है। </li>
-            <li>w08430i0099-dskni3-sdvnj092</li>
+            <li><a href="/?text=This  text contains Hindi characters: मेरा नााम अमित गुप्ता है।">This  text contains Hindi characters: मेरा नााम अमित गुप्ता है। </a></li>
+            <li><a href="/?text=w08430i0099-dskni3-sdvnj092">w08430i0099-dskni3-sdvnj092</a></li>
         </ul>
     </div>
     <div class="container">
         <div class="span12">
             <a class="p-5" href="https://github.com/amitguptagwl/bigbit"><img src="https://assets-cdn.github.com/images/modules/logos_page/Octocat.png" width="100px"></a> 
             <a class="p-5" href="https://www.patreon.com/bePatron?u=9531404"><img src="./static/img/support_patreon.svg" width="250px"></a>
-            <a class="p-5" href="https://www.paypal.me/amitguptagwl"><img src="./static/img/support_paypal.svg" width="250px"></a>
+            <a class="p-5" href="https://www.paypal.me/amitkumarguptagwl"><img src="./static/img/support_paypal.svg" width="250px"></a>
         </div>
     </div>
     <script>
