@@ -50,7 +50,14 @@
             const LB = bigbit.LinkedBytes;
             const num = this.opts.input;
     
-            let hb = new HB(num);
+            let hb, hbByteArray;
+            try{
+                hb = new HB(num);
+                hbByteArray = hb.toByteArray();
+            }catch(e){
+                hbByteArray = null
+            }
+
             let ehb = new EHB(num);
             floatNum = ieeeFloat(num);
             doubleNum = ieeeDouble(num);
@@ -64,12 +71,11 @@
                 LBactual = e.message;
             }
 
-            var hbByteArray = hb.toByteArray();
     
             this.data = [
                 {
                     title: "Header Byte Format",
-                    actual: hbByteArray.length > 64 ? 'Out of range' : hb.toString(),
+                    actual: ( !hbByteArray || hbByteArray.length > 64 ) ? 'Out of range' : hb.toString(),
                     byteArray: hbByteArray
                 },{
                     title: "Extended Header Byte Format",
