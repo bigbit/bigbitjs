@@ -228,10 +228,9 @@ function ByteBit( decimal , options){
             return "-"+opts.infinityIdentifier;
         }
 
-        const code = headByte & 15;
+        const code = headByte & 15; //number of bytes (remainder)
         let count = 0;
-        if( headByte & 16){
-            //these special code can define the nature of stored number
+        if( (headByte & 16) === 16){ //count byte flag
             count = LBSequence.decode(byteSequence, index + 1);
             index += count.len;
             count = count.val;
@@ -243,7 +242,7 @@ function ByteBit( decimal , options){
         if( byteSequence[ index+ count ] === undefined ) throw new Error("Invalid EHB bytes sequence.");
 
         let isNegative = false;
-        if( headByte & 128) {//negative
+        if( (headByte & 128) === 128 ) {//negative
             isNegative = true;
             headByte = headByte ^ 128;
         }
@@ -253,7 +252,7 @@ function ByteBit( decimal , options){
             exponent = LBSequence.decode(byteSequence, index +1 );
             count -= exponent.len;
             headByte = headByte ^ 64;
-            if(headByte & 32){
+            if( (headByte & 32) === 32 ){//exponent byte is negative
                 exponent.val = -exponent.val;
                 headByte = headByte ^ 32;
             } 
@@ -274,7 +273,8 @@ function ByteBit( decimal , options){
         }
 
         if( exponent.val ){
-            decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponent.val ) )
+            //decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponent.val ) )
+            decimalValue = BigNumber(exponentPow ( decimalValue.toFixed(), exponent.val ) );
         }
 
         if( isNegative ){
@@ -296,4 +296,12 @@ function ByteBit( decimal , options){
 
 }
 
+function exponentPow(numStr, pow){
+    if(pow > 0){//positive
+        return numStr + '0'.repeat(pow);
+    }else{//negative
+        const index = (numStr.length + pow);
+        return numStr.substring(0,index) + "." + numStr.substring(index)
+    }
+}
 module.exports = ByteBit;

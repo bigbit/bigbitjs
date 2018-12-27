@@ -107,13 +107,24 @@ describe ('ByteBit', () => {
         expect( byteBit.headByte ).toEqual( 128+64+32+2 );
     });
 
+    it('should accept a number with long exponent value', () => {
+        const byteBit = new ByteBit('3.141592653589791233455');
+        
+        //console.log( byteBit.toByteArray() );  // [ 106, 21, 175, 213, 81, 148, 145, 49, 91, 78, 170 ]
+        //console.log( byteBit.coffecient ); //[ 175, 213, 81, 148, 145, 49, 91, 78, 170 ]
+
+        expect( byteBit.toString() ).toEqual('3.141592653589791233455');
+        expect( byteBit.toByteArray() ).toEqual(  [ 64 + 32 + 10 , 21, 175, 213, 81, 148, 145, 49, 91, 78, 170 ] );
+        expect( byteBit.exponent ).toEqual( -21 );
+        expect( byteBit.exponentInBytes ).toEqual( [ 21 ] );
+        expect( byteBit.headByte ).toEqual( 64 + 32 + 10 );
+    });
+
     it('should throw error when all the bytes are not present', () => {
         const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
         expect( () =>{
             byteBit.toBigNumber( [128+64+2, 128+1] );
         }).toThrowError('Invalid EHB bytes sequence.');
     });
-
-    //TODO: coefficient length should count bytes for exponent.
 
 });
