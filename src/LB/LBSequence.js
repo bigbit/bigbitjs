@@ -56,18 +56,18 @@ const LBSequence = {
             throw new Error("LB format doesn't support negative number");
         }
 
-        let remainder = decimalValue.modulo( base ).toNumber();
         let sequence = [ 0 ];
+        let remainder = decimalValue.modulo( base ).toNumber();
         let quotient = decimalValue.minus(remainder).dividedBy( base );
     
         function _buildSequence(level, quotient, remainder){
-            if( quotient.isGreaterThan(base - 1) ){//still divisible
+            for(; quotient.isGreaterThan(base - 1); level++ ){//still divisible
                 sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
                 remainder = quotient.modulo( base ).toNumber();
-                
-                _buildSequence(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
-            }else if(quotient.isEqualTo(0)) {
-
+                quotient = quotient.minus(remainder).dividedBy( base );
+            }
+            
+            if(quotient.isEqualTo(0)) {
                 //don't add extra empty byte
             }else{
                 sequence[level] = increase(sequence[level] | 0, base).by(remainder) | 128;
@@ -86,7 +86,7 @@ const LBSequence = {
         }
     },
 
-    decode : function( byteSequence , index ){
+    decode : function( byteSequence , index, limit=64 ){
         index || (index = 0);
         
         //read for special values
@@ -99,6 +99,7 @@ const LBSequence = {
         let decimalValue = BigNumber(0);
         let i=0;
         for(; byteSequence[  index + i] & 128 ; i++){
+            if(limit < i) throw Error("Maximum length exceeded");
             quotient = BigNumber(byteSequence[  index + i]  ^ 128);
             if( i < powerOf128.length ){ //to save runtime operations
                 decimalValue = decimalValue.plus(   powerOf128[i].multipliedBy( quotient ) )
@@ -138,6 +139,12 @@ LBSequence.strToByteArr = function(str){
 
         byteArr.push(...LBSequence.encode(code));
     }
+    /* Short and simple solution
+    str = [...str];
+    for(let i=0; i< str.length; i++){
+        byteArr.push(...LBSequence.encode( str[i].codePointAt(0) ));
+    } */
+
     return byteArr;
 }
 

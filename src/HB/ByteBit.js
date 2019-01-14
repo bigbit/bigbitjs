@@ -136,27 +136,6 @@ function ByteBit( decimal , options){
     
     this.coffecient = [];
 
-    /**
-     * Construct cofficient bytes
-     * fill the current byte with quotient. level up (add another byte) for remainder
-     * keep doing it until the remainder is lesser than base
-     */
-    this._levelUp = function(level, quotient, remainder){
-
-        this.coffecient[level] = increase(this.coffecient[level] | 0, base).by(remainder);
-        if( quotient.isGreaterThan(base - 1) ){//still divisible
-            remainder = quotient.modulo( base ).toNumber();
-            
-            this._levelUp(level + 1, quotient.minus(remainder).dividedBy( base ), remainder);
-        }else if(quotient.isEqualTo(0)) {
-            //don't add extra empty byte
-        }else{
-            if( !this.coffecient[ level +1 ] ) this.coffecient.push( 0 );
-
-            this.coffecient[ level + 1 ] = increase(this.coffecient[ level + 1 ], base).by( quotient.toNumber() );
-        }
-    }
-
     this._levelUpIterative = function(level, quotient, remainder){
 
         let coffecient = [ 0 ];
@@ -186,8 +165,6 @@ function ByteBit( decimal , options){
         let quotient = this.decimalValue.minus(remainder).dividedBy( base );
 
         this.coffecient = this._levelUpIterative(0, quotient, remainder);
-        //this.coffecient = [ 0 ];
-        //this._levelUp(0, quotient, remainder );
         if(this.exponent){
             this.headByte = this.headByte | (this.coffecient.length + 1);
         }else{
@@ -209,87 +186,86 @@ function ByteBit( decimal , options){
         return bArr;
     }
 
-    /**
-     * Convert HB bytes array to BigNumber.
-     * HB bytes array can be read from buffer when buffer/bytes array and index is given
-     * or when passed as method param
-     * otherwise construct it with instance value
-     */
-    this.toBigNumber = function( headByteArray , index ){
-        //headByteArray || ( headByteArray = this.toByteArray() );
-        index || (index = 0);
-        let headByte = headByteArray[index];
-    
-        let bytesCount = headByte & 63;
-        if( bytesCount && headByteArray[ index + bytesCount ] === undefined ) throw new Error("Invalid HB Bytes sequence. All coffecient bytes are not present.");
-    
-        //read for special values
-        if( headByte === 0){
-            return BigNumber(0);
-        }else if( headByte === 128){
-            return NaN;
-        }else if( headByte === 64){
-            return opts.infiniteIdentifier;
-        }else if( headByte === 192){
-            return "-"+opts.infiniteIdentifier;
-        }
-    
-        let isNegative = false;
-        if( (headByte & 128) === 128 ) {//negative
-            isNegative = true;
-            headByte = headByte ^ 128;
-        }
-        
-        let exponentValue = 0;
-        if( (headByte & 64) === 64){//exponent byte is present
-            //if( headByteArray[ index+1 ] === undefined) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
-            if( (headByteArray[ index+1 ] & 128) === 128){//negative
-                exponentValue = -(headByteArray[ index+1 ] ^ 128); 
-            }else{//positive
-                exponentValue = headByteArray[ index+1 ]; 
-            }
-    
-            headByte = (headByte ^ 64 ) - 1;
-    
-        }
-    
-        //const coffecientsArrLength = headByte;
-        
-    
-        var coffecientIndex = exponentValue !== 0 ? index + 2 : index + 1;
-    
-        let decimalValue = BigNumber( headByteArray[  coffecientIndex ] );
-        for(let i=1; i< headByte; i++){
-            if( i< powerOf256.length ){ //to save runtime operations
-                decimalValue = decimalValue.plus(   powerOf256[i].multipliedBy( headByteArray[ coffecientIndex+ i] ) )
-            }else{
-                decimalValue = decimalValue.plus(   BigNumber(base).pow(i).multipliedBy( headByteArray[ coffecientIndex+ i] ) )
-            }
-        }
-    
-        if( exponentValue ){
-            decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponentValue ) )
-        }
-    
-        if( isNegative ){
-            decimalValue = decimalValue.multipliedBy( -1 );
-        }
-    
-        return decimalValue;
-    }
-    
-
     this.toExponentString = function(range){
-        return this.toBigNumber( this.toByteArray() ).toExponential(range);
+        return toBigNumber( this.toByteArray() ).toExponential(range);
     }
     
     this.toString = function(){
-        return this.toBigNumber( this.toByteArray() ).toFixed();
+        return toBigNumber( this.toByteArray() ).toFixed();
     }
-
-    
-
 }
 
+/**
+ * Convert HB bytes array to BigNumber.
+ * HB bytes array can be read from buffer when buffer/bytes array and index is given
+ * or when passed as method param
+ * otherwise construct it with instance value
+ */
+const toBigNumber = function( headByteArray , index ){
+    //headByteArray || ( headByteArray = this.toByteArray() );
+    index || (index = 0);
+    let headByte = headByteArray[index];
+
+    let bytesCount = headByte & 63;
+    if( bytesCount && headByteArray[ index + bytesCount ] === undefined ) throw new Error("Invalid HB Bytes sequence. All coffecient bytes are not present.");
+
+    //read for special values
+    if( headByte === 0){
+        return BigNumber(0);
+    }else if( headByte === 128){
+        return NaN;
+    }else if( headByte === 64){
+        return opts.infiniteIdentifier;
+    }else if( headByte === 192){
+        return "-"+opts.infiniteIdentifier;
+    }
+
+    let isNegative = false;
+    if( (headByte & 128) === 128 ) {//negative
+        isNegative = true;
+        headByte = headByte ^ 128;
+    }
+    
+    let exponentValue = 0;
+    if( (headByte & 64) === 64){//exponent byte is present
+        //if( headByteArray[ index+1 ] === undefined) throw new Error("Invalid HB Bytes array. exponent byte was expected.");
+        if( (headByteArray[ index+1 ] & 128) === 128){//negative
+            exponentValue = -(headByteArray[ index+1 ] ^ 128); 
+        }else{//positive
+            exponentValue = headByteArray[ index+1 ]; 
+        }
+
+        headByte = (headByte ^ 64 ) - 1;
+
+    }
+
+    //const coffecientsArrLength = headByte;
+    
+
+    var coffecientIndex = exponentValue !== 0 ? index + 2 : index + 1;
+
+    let decimalValue = BigNumber( headByteArray[  coffecientIndex ] );
+    for(let i=1; i< headByte; i++){
+        if( i< powerOf256.length ){ //to save runtime operations
+            decimalValue = decimalValue.plus(   powerOf256[i].multipliedBy( headByteArray[ coffecientIndex+ i] ) )
+        }else{
+            decimalValue = decimalValue.plus(   BigNumber(base).pow(i).multipliedBy( headByteArray[ coffecientIndex+ i] ) )
+        }
+    }
+
+    if( exponentValue ){
+        decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponentValue ) )
+    }
+
+    if( isNegative ){
+        decimalValue = decimalValue.multipliedBy( -1 );
+    }
+
+    return decimalValue;
+}
+ByteBit.decode = function(){
+    const bigNumber = toBigNumber(...arguments);
+    return new ByteBit(bigNumber.toFixed() );
+}
 
 module.exports = ByteBit;

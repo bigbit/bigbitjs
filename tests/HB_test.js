@@ -112,15 +112,16 @@ describe ('ByteBit', () => {
         const byteBit = new ByteBit('-3.7000');
         expect( byteBit.toString() ).toEqual('-3.7');
         expect( byteBit.toByteArray() ).toEqual( [128+64+2, 128+1, 37]);
+        expect( ByteBit.decode( byteBit.toByteArray() ).toString() ).toEqual('-3.7');
         expect( byteBit.exponent ).toEqual( -1 );
         expect( byteBit.exponentInBytes ).toEqual( 128+1 );
         expect( byteBit.headByte ).toEqual( 128+64+2 );
     });
 
     it('should throw error when all the bytes are not present', () => {
-        const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
+        //const byteBit = new ByteBit('-3.7'); // [128+64+2, 128+1, 37]
         expect( () =>{
-            byteBit.toBigNumber( [128+64+2, 128+1] );
+            ByteBit.decode( [128+64+2, 128+1] );
         }).toThrowError('Invalid HB Bytes sequence. All coffecient bytes are not present.');
     });
 
