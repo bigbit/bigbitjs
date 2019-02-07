@@ -38,6 +38,14 @@
                         <td>Byte Array ({result.byteArray.length}) </td>
                         <td>[{result.byteArray}]</td>
                     </tr>
+                    <tr>
+                        <td>Hex ({result.hexadecimal.length}) </td>
+                        <td>{result.hexadecimal}</td>
+                    </tr>
+                    <tr>
+                        <td>Base64 ({result.base64.length}) </td>
+                        <td>{result.base64}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -57,24 +65,30 @@
                 console.log(e);
                 LBactual = e.message;
             }
+            let utf8Arr = toUTF8Array(num);
+            let utf16leArr = utf16le(num);
             this.data = [
                 {
                     title: "LB (Linked Bytes)",
                     actual: LBactual,
-                    byteArray: LBbyteArray
+                    byteArray: LBbyteArray,
+                    hexadecimal: bytesToHex(LBbyteArray),
+                    base64: bytesToBase64(LBbyteArray)
                 },{
                     title: "UTF-8",
-                    actual: stringFromUTF8Array( toUTF8Array(num) ),
-                    byteArray: toUTF8Array(num)
+                    actual: stringFromUTF8Array( utf8Arr ),
+                    byteArray: utf8Arr,
+                    hexadecimal: bytesToHex(utf8Arr),
+                    base64: bytesToBase64(utf8Arr)
                 },{
                     title: "UTF-16",
-                    actual: readUTF16String( utf16le(num) ),
-                    byteArray: utf16le(num)
+                    actual: readUTF16String( utf16leArr ),
+                    byteArray: utf16leArr,
+                    hexadecimal: bytesToHex(utf16leArr),
+                    base64: bytesToBase64(utf16leArr)
                 }
             ]
         }
-
-
         
         function utf16le(str){
             var bytesv2 = []; // char codes
