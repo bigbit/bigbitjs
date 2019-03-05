@@ -195,6 +195,16 @@ function ByteBit( decimal , options){
     }
 }
 
+function exponentPow(numStr, pow){
+    if(pow > 0){//positive
+        return numStr + '0'.repeat(pow);
+    }else{//negative
+        const index = (numStr.length + pow);
+        return numStr.substring(0,index) + "." + numStr.substring(index)
+    }
+}
+
+
 /**
  * Convert HB bytes array to BigNumber.
  * HB bytes array can be read from buffer when buffer/bytes array and index is given
@@ -254,7 +264,8 @@ const toBigNumber = function( headByteArray , index ){
     }
 
     if( exponentValue ){
-        decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponentValue ) )
+        //decimalValue = decimalValue.multipliedBy( BigNumber(10).pow( exponentValue ) )
+        decimalValue = BigNumber(exponentPow ( decimalValue.toFixed(), exponentValue ) );
     }
 
     if( isNegative ){
