@@ -209,12 +209,12 @@ function ByteBit( decimal , options){
         return bArr;
     }
 
-    this.toExponentString = function(range){
-        return toBigNumber( this.toByteArray() ).toExponential(range);
+    this.toExponentString = function(range, limit=64){
+        return toBigNumber( this.toByteArray() ,0,limit).toExponential(range);
     }
     
-    this.toString = function(){
-        return toBigNumber( this.toByteArray() ).toFixed();
+    this.toString = function(limit=64){
+        return toBigNumber( this.toByteArray() ,0,limit).toFixed();
     }
 
 }

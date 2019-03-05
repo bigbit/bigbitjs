@@ -65,7 +65,7 @@
                 }else{
                     ehb = new EHB(num);
                     ehbByteArr = ehb.toByteArray();
-                    ehb = ehb.decode(ehbByteArr , 0, 449).toFixed();
+                    ehb = ehb.toString(449);
                 }
             }catch(e){
                 ehb = "Processing such a big number can freeze the browser. Use the library directly.";
