@@ -272,7 +272,7 @@ const toBigNumber = function( byteSequence , index, limit=64 ){
     if( (headByte & 64) === 64){//exponent byte is present
         exponent = LBSequence.decode(byteSequence, index +1 );
         count -= exponent.len;
-        if(limit < count) throw Error("Maximum length exceeded");
+        if(limit < count) throw new Error("Maximum length exceeded");
         headByte = headByte ^ 64;
         if( (headByte & 32) === 32 ){//exponent byte is negative
             exponent.val = -exponent.val;
